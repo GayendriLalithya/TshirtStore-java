@@ -16,6 +16,16 @@ public class TShirtStore {
     public static void main(String[] args) {
         TShirtStore store = new TShirtStore();
         store.run();
+
+        RecordManager manager = new RecordManager();
+        manager.addCustomer(new Customer("001", "Alice"));
+        Customer found = manager.getCustomer("001");
+
+        if (found != null) {
+            System.out.println("Customer found: " + found.getName());
+        } else {
+            System.out.println("Customer not found.");
+        }
     }
 
     public void run() {

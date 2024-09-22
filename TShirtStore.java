@@ -420,12 +420,12 @@ public class TShirtStore {
                 System.out.println("No orders available to delete.");
                 return;
             }
-        
+
             do {
                 System.out.print("Enter order ID: ");
                 String orderId = scanner.nextLine();
                 int index = findOrderIndexById(orderId);
-        
+
                 if (index == -1) {
                     System.out.println("Invalid ID.");
                     System.out.println("No order with ID " + orderId + " found.");
@@ -436,7 +436,7 @@ public class TShirtStore {
                     System.out.println("QTY          : " + orderQuantities[index]);
                     System.out.println("Amount       : " + orderAmounts[index]);
                     System.out.println("Status       : " + orderStatuses[index]);
-        
+
                     System.out.print("Do you want to delete this order? (y/n): ");
                     String response = scanner.nextLine();
                     if ("y".equalsIgnoreCase(response)) {
@@ -448,7 +448,7 @@ public class TShirtStore {
                         }
                     }
                 }
-        
+
                 if (continueDeletion) {
                     System.out.print("Do you want to delete another order? (y/n): ");
                     continueDeletion = scanner.nextLine().equalsIgnoreCase("y");

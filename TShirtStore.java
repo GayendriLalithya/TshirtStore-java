@@ -6,8 +6,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TShirtStore {
-    private Scanner scanner;
+    //private Scanner scanner;
     private int lastOrderNumber = 10000; // Assuming the last order number starts from 10000.
+
+    // Arrays for storing information temporarily
+    private Scanner scanner = new Scanner(System.in);
+    private String[] orderIds = new String[0];
+    private String[] customerNames = new String[0];
+    private String[] customerContacts = new String[0];
+    private String[] tshirtSizes = new String[0];
+    private int[] orderQuantities = new int[0];
+    private double[] orderAmounts = new double[0];
+    private String[] orderStatuses = new String[0];
 
     public TShirtStore() {
         this.scanner = new Scanner(System.in);
@@ -17,7 +27,7 @@ public class TShirtStore {
         TShirtStore store = new TShirtStore();
         store.run();
 
-        RecordManager manager = new RecordManager();
+        /*RecordManager manager = new RecordManager();
         manager.addCustomer(new Customer("001", "Alice"));
         Customer found = manager.getCustomer("001");
 
@@ -25,7 +35,7 @@ public class TShirtStore {
             System.out.println("Customer found: " + found.getName());
         } else {
             System.out.println("Customer not found.");
-        }
+        }*/
     }
 
     public void run() {
@@ -98,12 +108,16 @@ public class TShirtStore {
             String orderID = generateOrderID();
             System.out.println("Generated Order ID: " + orderID);
 
+            System.out.print("Enter Customer Name: ");
+            String customerName = scanner.nextLine();
+
             String customerContact = getValidContactNumber();
             String tshirtSize = getValidTshirtSize();
             int quantity = getValidQuantity();
             double totalAmount = calculateTotalAmount(tshirtSize, quantity);
 
             System.out.println("Total Amount: " + totalAmount);
+            extendArrays(orderID, customerName, customerContact, tshirtSize, quantity, totalAmount);
 
             // Ask to confirm the order placement
             System.out.println("Do you want to place this order (Y/N)?");
@@ -128,6 +142,23 @@ public class TShirtStore {
                 }
             }
         } while (true); // Continue the loop if another order is to be placed
+    }
+
+    private void extendArrays(String orderId, String name, String contact, String size, int quantity, double amount) {
+        orderIds = Arrays.copyOf(orderIds, orderIds.length + 1);
+        customerNames = Arrays.copyOf(customerNames, customerNames.length + 1);
+        customerContacts = Arrays.copyOf(customerContacts, customerContacts.length + 1);
+        tshirtSizes = Arrays.copyOf(tshirtSizes, tshirtSizes.length + 1);
+        orderQuantities = Arrays.copyOf(orderQuantities, orderQuantities.length + 1);
+        orderAmounts = Arrays.copyOf(orderAmounts, orderAmounts.length + 1);
+
+        int newIndex = orderIds.length - 1;
+        orderIds[newIndex] = orderId;
+        customerNames[newIndex] = name;
+        customerContacts[newIndex] = contact;
+        tshirtSizes[newIndex] = size;
+        orderQuantities[newIndex] = quantity;
+        orderAmounts[newIndex] = amount;
     }
 
     private String generateOrderID() {
@@ -220,7 +251,7 @@ public class TShirtStore {
             String phone = scanner.nextLine();
 
             if (!isValidPhone(phone)) {
-                System.out.println("Invalid input..");
+                System.out.println("Invalid input.");
             } else {
                 displayCustomerOrders(phone);
             }
@@ -236,38 +267,23 @@ public class TShirtStore {
     }
 
     private void displayCustomerOrders(String phoneNumber) {
-        // Example data structure for storing orders, consider retrieving this from a database or file
-        Map<String, List<Order>> orders = new HashMap<>();
-        orders.put("0783589852", Arrays.asList(new Order("M", 6, 5400.00),
-                                               new Order("XL", 4, 4400.00),
-                                               new Order("XXL", 1, 1200.00)));
+        boolean found = false;
+        double totalAmount = 0;
+        System.out.println("| Size | QTY | Amount |");
+        System.out.println("-----------------------");
 
-        List<Order> customerOrders = orders.getOrDefault(phoneNumber, new ArrayList<>());
+        for (int i = 0; i < customerContacts.length; i++) {
+            if (customerContacts[i].equals(phoneNumber)) {
+                found = true;
+                System.out.printf("| %s | %d | %.2f |\n", tshirtSizes[i], orderQuantities[i], orderAmounts[i]);
+                totalAmount += orderAmounts[i];
+            }
+        }
 
-        if (customerOrders.isEmpty()) {
+        if (!found) {
             System.out.println("No orders found for this customer.");
         } else {
-            double totalAmount = 0;
-            System.out.println("| Size | QTY | Amount |");
-            System.out.println("-----------------------");
-            for (Order order : customerOrders) {
-                System.out.printf("| %s | %d | %.2f |\n", order.size, order.quantity, order.amount);
-                totalAmount += order.amount;
-            }
             System.out.printf("Total Amount: %.2f\n", totalAmount);
-        }
-    }
-
-    // You would need an Order class to use in your mock data structure
-    class Order {
-        String size;
-        int quantity;
-        double amount;
-
-        public Order(String size, int quantity, double amount) {
-            this.size = size;
-            this.quantity = quantity;
-            this.amount = amount;
         }
     }
 
@@ -277,18 +293,21 @@ public class TShirtStore {
             System.out.print("Enter order ID: ");
             String orderId = scanner.nextLine();
 
-            // Mock data for demonstration. Replace this with your data retrieval logic.
-            Map<String, OrderDetails> orders = new HashMap<>();
-            orders.put("ODR#00004", new OrderDetails("0776198410", "M", 3, 2700.00, "delivering"));
+            boolean found = false;
+            for (int i = 0; i < orderIds.length; i++) {
+                if (orderIds[i].equals(orderId)) {
+                    found = true;
+                    // Assuming status is also stored in an array or can be derived
+                    System.out.println("Phone Number : " + customerContacts[i]);
+                    System.out.println("Size         : " + tshirtSizes[i]);
+                    System.out.println("QTY          : " + orderQuantities[i]);
+                    System.out.println("Amount       : " + orderAmounts[i]);
+                    System.out.println("Status       : " + getOrderStatus(i)); // Implement getOrderStatus method based on your application logic
+                    break;
+                }
+            }
 
-            if (orders.containsKey(orderId)) {
-                OrderDetails order = orders.get(orderId);
-                System.out.println("Phone Number : " + order.phoneNumber);
-                System.out.println("Size         : " + order.size);
-                System.out.println("QTY          : " + order.quantity);
-                System.out.println("Amount       : " + order.amount);
-                System.out.println("Status       : " + order.status);
-            } else {
+            if (!found) {
                 System.out.println("Invalid ID..");
             }
 
@@ -298,20 +317,11 @@ public class TShirtStore {
         } while (continueSearch);
     }
 
-    class OrderDetails {
-        String phoneNumber;
-        String size;
-        int quantity;
-        double amount;
-        String status;
-
-        OrderDetails(String phoneNumber, String size, int quantity, double amount, String status) {
-            this.phoneNumber = phoneNumber;
-            this.size = size;
-            this.quantity = quantity;
-            this.amount = amount;
-            this.status = status;
-        }
+    private String getOrderStatus(int index) {
+        // This method needs to be implemented based on how status is managed in your arrays
+        // For simplicity, assuming an array 'orderStatuses' exists
+        // return orderStatuses[index];
+        return "Processing"; // Placeholder response
     }
 
     private void viewReports() {
@@ -404,6 +414,106 @@ public class TShirtStore {
     }
 
     private void deleteOrder() {
-        // Implement delete logic
+        boolean continueDeletion = false;
+        try {
+            if (orderIds.length == 0) {
+                System.out.println("No orders available to delete.");
+                return;
+            }
+
+            do {
+                System.out.print("Enter order ID: ");
+                String orderId = scanner.nextLine();
+                int index = findOrderIndexById(orderId);
+
+                if (index == -1) {
+                    System.out.println("Invalid ID.");
+                    System.out.println("No order with ID " + orderId + " found.");
+                } else {
+                    // Display order details safely after confirming the index is valid
+                    System.out.println("Phone Number : " + customerContacts[index]);
+                    System.out.println("Size         : " + tshirtSizes[index]);
+                    System.out.println("QTY          : " + orderQuantities[index]);
+                    System.out.println("Amount       : " + orderAmounts[index]);
+                    System.out.println("Status       : " + orderStatuses[index]);
+
+                    System.out.print("Do you want to delete this order? (y/n): ");
+                    String response = scanner.nextLine();
+                    if ("y".equalsIgnoreCase(response)) {
+                        try {
+                            deleteOrderAtIndex(index);
+                            System.out.println("Order Deleted..!");
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            System.out.println("An error occurred during order deletion: " + e.getMessage());
+                        }
+                    }
+                }
+
+                if (continueDeletion) {
+                    System.out.print("Do you want to delete another order? (y/n): ");
+                    continueDeletion = scanner.nextLine().equalsIgnoreCase("y");
+                    if (continueDeletion && orderIds.length == 0) {
+                        System.out.println("No more orders to delete.");
+                        break;
+                    }
+                }
+            } while (continueDeletion);
+        } catch (Exception e) {
+            System.out.println("An error occurred during order deletion: " + e.getMessage());
+        }
+    }
+
+    private int findOrderIndexById(String orderId) {
+        for (int i = 0; i < orderIds.length; i++) {
+            if (orderIds[i].equals(orderId)) {
+                return i;
+            }
+        }
+        return -1; // return -1 if order ID is not found
+    }
+
+    private void deleteOrderAtIndex(int index) {
+        try {
+            orderIds = removeElement(orderIds, index);
+            customerNames = removeElement(customerNames, index);
+            customerContacts = removeElement(customerContacts, index);
+            tshirtSizes = removeElement(tshirtSizes, index);
+            orderQuantities = removeElement(orderQuantities, index);
+            orderAmounts = removeElement(orderAmounts, index);
+            orderStatuses = removeElement(orderStatuses, index);
+            System.out.println("Order deleted successfully.");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Failed to delete order: Invalid order index.");
+        }
+    }
+
+    private String[] removeElement(String[] array, int index) {
+        if (array == null || index < 0 || index >= array.length) {
+            return array;
+        }
+        String[] anotherArray = new String[array.length - 1];
+        System.arraycopy(array, 0, anotherArray, 0, index);
+        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
+        return anotherArray;
+    }
+    
+    private int[] removeElement(int[] array, int index) {
+        if (array == null || index < 0 || index >= array.length) {
+            return array;
+        }
+        int[] anotherArray = new int[array.length - 1];
+        System.arraycopy(array, 0, anotherArray, 0, index);
+        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
+        return anotherArray;
+    }
+    
+    private double[] removeElement(double[] array, int index) {
+        if (array == null || index < 0 || index >= array.length) {
+            return array;
+        }
+        double[] anotherArray = new double[array.length - 1];
+        System.arraycopy(array, 0, anotherArray, 0, index);
+        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
+        return anotherArray;
     }
 }

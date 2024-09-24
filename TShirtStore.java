@@ -11,13 +11,21 @@ public class TShirtStore {
 
     // Arrays for storing information temporarily
     private Scanner scanner = new Scanner(System.in);
-    private String[] orderIds = new String[0];
+    /*private String[] orderIds = new String[0];
     private String[] customerNames = new String[0];
     private String[] customerContacts = new String[0];
     private String[] tshirtSizes = new String[0];
     private int[] orderQuantities = new int[0];
     private double[] orderAmounts = new double[0];
-    private String[] orderStatuses = new String[0];
+    private String[] orderStatuses = new String[0];*/
+
+    private static String[] orderIds = new String[0];
+    private static String[] customerNames = new String[0];
+    private static String[] customerContacts = new String[0];
+    private static String[] tshirtSizes = new String[0];
+    private static int[] orderQuantities = new int[0];
+    private static double[] orderAmounts = new double[0];
+
 
     public TShirtStore() {
         this.scanner = new Scanner(System.in);
@@ -413,107 +421,84 @@ public class TShirtStore {
         // Implement status update logic
     }
 
-    private void deleteOrder() {
-        boolean continueDeletion = false;
-        try {
-            if (orderIds.length == 0) {
-                System.out.println("No orders available to delete.");
-                return;
+    public void deleteOrder() {
+    boolean continueDeletion;
+    char choice;
+
+    do {
+        System.out.print("\nEnter Order ID to delete: ");
+        String orderId = scanner.next();
+
+        int index = searchbyorderid(orderId);
+        if (index == -1) {
+            System.out.println("\nOrder Not found.");
+        } else {
+            printorder(index);
+
+            System.out.print("\nDo you really want to delete this order? (Y/N): ");
+            choice = scanner.next().charAt(0);
+
+            if (Character.toUpperCase(choice) == 'Y') {
+                removeorder(index);
+                System.out.println("\nOrder Deleted Successfully.");
             }
-
-            do {
-                System.out.print("Enter order ID: ");
-                String orderId = scanner.nextLine();
-                int index = findOrderIndexById(orderId);
-
-                if (index == -1) {
-                    System.out.println("Invalid ID.");
-                    System.out.println("No order with ID " + orderId + " found.");
-                } else {
-                    // Display order details safely after confirming the index is valid
-                    System.out.println("Phone Number : " + customerContacts[index]);
-                    System.out.println("Size         : " + tshirtSizes[index]);
-                    System.out.println("QTY          : " + orderQuantities[index]);
-                    System.out.println("Amount       : " + orderAmounts[index]);
-                    System.out.println("Status       : " + orderStatuses[index]);
-
-                    System.out.print("Do you want to delete this order? (y/n): ");
-                    String response = scanner.nextLine();
-                    if ("y".equalsIgnoreCase(response)) {
-                        try {
-                            deleteOrderAtIndex(index);
-                            System.out.println("Order Deleted..!");
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            System.out.println("An error occurred during order deletion: " + e.getMessage());
-                        }
-                    }
-                }
-
-                if (continueDeletion) {
-                    System.out.print("Do you want to delete another order? (y/n): ");
-                    continueDeletion = scanner.nextLine().equalsIgnoreCase("y");
-                    if (continueDeletion && orderIds.length == 0) {
-                        System.out.println("No more orders to delete.");
-                        break;
-                    }
-                }
-            } while (continueDeletion);
-        } catch (Exception e) {
-            System.out.println("An error occurred during order deletion: " + e.getMessage());
         }
-    }
 
-    private int findOrderIndexById(String orderId) {
+        System.out.print("\nDo you want to delete another Order? (Y/N): ");
+        choice = scanner.next().charAt(0);
+
+        if (Character.toUpperCase(choice) == 'N') {
+            break;
+        }
+    } while (true);
+}
+
+    private int searchbyorderid(String orderId) {
         for (int i = 0; i < orderIds.length; i++) {
             if (orderIds[i].equals(orderId)) {
                 return i;
             }
         }
-        return -1; // return -1 if order ID is not found
+        return -1;  // Return -1 if the order ID is not found
     }
 
-    private void deleteOrderAtIndex(int index) {
-        try {
-            orderIds = removeElement(orderIds, index);
-            customerNames = removeElement(customerNames, index);
-            customerContacts = removeElement(customerContacts, index);
-            tshirtSizes = removeElement(tshirtSizes, index);
-            orderQuantities = removeElement(orderQuantities, index);
-            orderAmounts = removeElement(orderAmounts, index);
-            orderStatuses = removeElement(orderStatuses, index);
-            System.out.println("Order deleted successfully.");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Failed to delete order: Invalid order index.");
+    private void printorder(int index) {
+        if (index >= 0 && index < orderIds.length) {
+            System.out.println("Order ID: " + orderIds[index]);
+            System.out.println("Customer Contact: " + customerContacts[index]);
+            System.out.println("T-Shirt Size: " + tshirtSizes[index]);
+            System.out.println("Quantity: " + orderQuantities[index]);
+            System.out.println("Amount: " + orderAmounts[index]);
+        } else {
+            System.out.println("Invalid index provided for printing order.");
         }
     }
 
-    private String[] removeElement(String[] array, int index) {
-        if (array == null || index < 0 || index >= array.length) {
-            return array;
+    public static void removeorder(int index) {
+        String[] temporderIds = new String[orderIds.length - 1];
+        String[] tempcustomerContacts = new String[customerContacts.length - 1];
+        String[] temptshirtSizes = new String[tshirtSizes.length - 1];
+        int[] temporderQuantities = new int[orderQuantities.length - 1];
+        double[] temporderAmounts = new double[orderAmounts.length - 1];
+
+        System.arraycopy(orderIds, 0, temporderIds, 0, index);
+        System.arraycopy(customerContacts, 0, tempcustomerContacts, 0, index);
+        System.arraycopy(tshirtSizes, 0, temptshirtSizes, 0, index);
+        System.arraycopy(orderQuantities, 0, temporderQuantities, 0, index);
+        System.arraycopy(orderAmounts, 0, temporderAmounts, 0, index);
+
+        if (index < orderIds.length - 1) {
+            System.arraycopy(orderIds, index + 1, temporderIds, index, orderIds.length - index - 1);
+            System.arraycopy(customerContacts, index + 1, tempcustomerContacts, index, customerContacts.length - index - 1);
+            System.arraycopy(tshirtSizes, index + 1, temptshirtSizes, index, tshirtSizes.length - index - 1);
+            System.arraycopy(orderQuantities, index + 1, temporderQuantities, index, orderQuantities.length - index - 1);
+            System.arraycopy(orderAmounts, index + 1, temporderAmounts, index, orderAmounts.length - index - 1);
         }
-        String[] anotherArray = new String[array.length - 1];
-        System.arraycopy(array, 0, anotherArray, 0, index);
-        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
-        return anotherArray;
-    }
-    
-    private int[] removeElement(int[] array, int index) {
-        if (array == null || index < 0 || index >= array.length) {
-            return array;
-        }
-        int[] anotherArray = new int[array.length - 1];
-        System.arraycopy(array, 0, anotherArray, 0, index);
-        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
-        return anotherArray;
-    }
-    
-    private double[] removeElement(double[] array, int index) {
-        if (array == null || index < 0 || index >= array.length) {
-            return array;
-        }
-        double[] anotherArray = new double[array.length - 1];
-        System.arraycopy(array, 0, anotherArray, 0, index);
-        System.arraycopy(array, index + 1, anotherArray, index, array.length - index - 1);
-        return anotherArray;
+
+        orderIds = temporderIds;
+        customerContacts = tempcustomerContacts;
+        tshirtSizes = temptshirtSizes;
+        orderQuantities = temporderQuantities;
+        orderAmounts = temporderAmounts;
     }
 }

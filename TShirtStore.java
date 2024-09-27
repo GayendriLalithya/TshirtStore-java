@@ -614,8 +614,47 @@ public class TShirtStore {
     }*/
 
     private void viewItemReports() {
-        System.out.println("Item Reports Functionality Coming Soon...");
-        // Here you would add the logic for viewing item-specific reports.
+        System.out.println("[1] Best Selling Categories Sorted by QTY");
+        System.out.println("[2] Best Selling Categories Sorted by Amount");
+        System.out.print("Enter option: ");
+        String option = scanner.nextLine();
+
+        switch (option) {
+            case "1":
+                sortCategoriesByQuantity();
+                break;
+            case "2":
+                sortCategoriesByAmount();
+                break;
+            default:
+                System.out.println("Invalid option, please try again.");
+                viewItemReports(); // Recursive call to re-display options if invalid input
+        }
+    }
+
+    private void sortCategoriesByQuantity() {
+        // Collect and sort data by quantity
+        Map<String, Integer> categoryData = new HashMap<>();
+        for (int i = 0; i < tshirtSizes.length; i++) {
+            categoryData.merge(tshirtSizes[i], orderQuantities[i], Integer::sum);
+        }
+        // Print sorted data by quantity
+        categoryData.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .forEach(e -> System.out.println("Category: " + e.getKey() + ", QTY: " + e.getValue()));
+    }
+
+    private void sortCategoriesByAmount() {
+        // Collect and sort data by total amount
+        Map<String, Double> categoryData = new HashMap<>();
+        for (int i = 0; i < tshirtSizes.length; i++) {
+            double amount = orderQuantities[i] * orderAmounts[i]; // Assuming orderAmounts holds the price per unit
+            categoryData.merge(tshirtSizes[i], amount, Double::sum);
+        }
+        // Print sorted data by total amount
+        categoryData.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .forEach(e -> System.out.println("Category: " + e.getKey() + ", Total: " + String.format("%.2f", e.getValue())));
     }
 
     private void viewOrdersReports() {

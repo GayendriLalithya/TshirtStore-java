@@ -392,20 +392,227 @@ public class TShirtStore {
         }
     }
     
-    private void bestInCustomers() {
-        System.out.println("Best in Customers Report Functionality Coming Soon...");
-        // Logic for calculating and displaying the best customers based on some criteria
+    /*private void bestInCustomers() {
+        // Map to store customer data with total quantities and amounts
+        Map<String, Integer> customerData = new HashMap<>();
+
+        // Aggregate data from the order arrays
+        for (int i = 0; i < customerContacts.length; i++) {
+            String customerId = customerContacts[i];
+            int quantity = orderQuantities[i];
+            double pricePerUnit = getPricePerSize(tshirtSizes[i]);
+            int amount = (int) (quantity * pricePerUnit);  // Cast to int, assuming amount is handled as integer
+
+            customerData.put(customerId, customerData.getOrDefault(customerId, 0) + amount);
+        }
+
+        // Convert map to a list of entries
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>(customerData.entrySet());
+
+        // Bubble sort by value in descending order
+        boolean sorted;
+        do {
+            sorted = true;
+            for (int i = 0; i < entries.size() - 1; i++) {
+                if (entries.get(i).getValue() < entries.get(i + 1).getValue()) {
+                    // Swap entries
+                    Map.Entry<String, Integer> temp = entries.get(i);
+                    entries.set(i, entries.get(i + 1));
+                    entries.set(i + 1, temp);
+                    sorted = false;
+                }
+            }
+        } while (!sorted);
+
+        // Printing the header
+        System.out.println("+---------------+----------------+");
+        System.out.println("| Customer ID   | Total Amount   |");
+        System.out.println("+---------------+----------------+");
+
+        // Print each customer's aggregated data
+        for (Map.Entry<String, Integer> entry : entries) {
+            System.out.printf("| %-13s | %14d |\n", entry.getKey(), entry.getValue());
+        }
+
+        System.out.println("+---------------+----------------+");
+
+        // Option to return to the main menu
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine(); // Consume the next line to pause the display
     }
-    
+
+    private double getPricePerSize(String size) {
+        switch (size) {
+            case "XS": return 600;
+            case "S": return 800;
+            case "M": return 900;
+            case "L": return 1000;
+            case "XL": return 1100;
+            case "XXL": return 1200;
+            default: return 0; // Default price if size is unrecognized
+        }
+    }*/
+
+   private void bestInCustomers() {
+        // Map to store customer data with total quantities and amounts
+        Map<String, int[]> customerData = new HashMap<>();
+
+        // Aggregate data from the order arrays
+        for (int i = 0; i < customerContacts.length; i++) {
+            String customerId = customerContacts[i];
+            int quantity = orderQuantities[i];
+            double pricePerUnit = getPricePerSize(tshirtSizes[i]);
+            int amount = (int) (quantity * pricePerUnit);  // Cast to int for simplicity
+
+            if (!customerData.containsKey(customerId)) {
+                customerData.put(customerId, new int[]{quantity, amount});
+            } else {
+                int[] existingData = customerData.get(customerId);
+                existingData[0] += quantity;  // Increment the quantity
+                existingData[1] += amount;    // Add to the amount
+                customerData.put(customerId, existingData);
+            }
+        }
+
+        // Convert map to a list of entries
+        List<Map.Entry<String, int[]>> entries = new ArrayList<>(customerData.entrySet());
+
+        // Bubble sort by total amount in descending order
+        boolean sorted;
+        do {
+            sorted = true;
+            for (int i = 0; i < entries.size() - 1; i++) {
+                if (entries.get(i).getValue()[1] < entries.get(i + 1).getValue()[1]) {
+                    // Swap entries
+                    Map.Entry<String, int[]> temp = entries.get(i);
+                    entries.set(i, entries.get(i + 1));
+                    entries.set(i + 1, temp);
+                    sorted = false;
+                }
+            }
+        } while (!sorted);
+
+        // Printing the header
+        System.out.println("+---------------+---------+--------------+");
+        System.out.println("| Customer ID   | All QTY | Total Amount |");
+        System.out.println("+---------------+---------+--------------+");
+
+        // Print each customer's aggregated data
+        for (Map.Entry<String, int[]> entry : entries) {
+            System.out.printf("| %-13s | %7d | %12d |\n", entry.getKey(), entry.getValue()[0], entry.getValue()[1]);
+        }
+
+        System.out.println("+---------------+---------+--------------+");
+
+        // Option to return to the main menu
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine(); // Consume the next line to pause the display
+    }
+
+    private double getPricePerSize(String size) {
+        switch (size) {
+            case "XS": return 600;
+            case "S": return 800;
+            case "M": return 900;
+            case "L": return 1000;
+            case "XL": return 1100;
+            case "XXL": return 1200;
+            default: return 0; // Default price if size is unrecognized
+        }
+    }
+
     private void viewCustomers() {
-        System.out.println("View Customers Functionality Coming Soon...");
-        // Logic for displaying a list of all customers
+        // Map to store customer data with total quantities and amounts
+        Map<String, int[]> customerData = new HashMap<>();
+
+        // Aggregate data from the order arrays
+        for (int i = 0; i < customerContacts.length; i++) {
+            String customerId = customerContacts[i];
+            int quantity = orderQuantities[i];
+            double amount = orderAmounts[i];
+
+            if (!customerData.containsKey(customerId)) {
+                customerData.put(customerId, new int[]{quantity, (int) amount}); // Cast to int for amount if needed or use double
+            } else {
+                int[] existingData = customerData.get(customerId);
+                existingData[0] += quantity;
+                existingData[1] += amount;
+                customerData.put(customerId, existingData);
+            }
+        }
+
+        // Printing the header
+        System.out.println("+---------------+---------+--------------+");
+        System.out.println("| Customer ID   | All QTY | Total Amount |");
+        System.out.println("+---------------+---------+--------------+");
+
+        // Print each customer's aggregated data
+        for (Map.Entry<String, int[]> entry : customerData.entrySet()) {
+            System.out.printf("| %-13s | %7d | %12d |\n", entry.getKey(), entry.getValue()[0], entry.getValue()[1]);
+        }
+
+        System.out.println("+---------------+---------+--------------+");
+
+        // Option to return to the main menu
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine(); // Consume the next line to pause the display
     }
     
     private void allCustomerReport() {
-        System.out.println("All Customer Report Functionality Coming Soon...");
-        // Logic for displaying a comprehensive report on all customers
+        // Map to hold customer data, with nested maps for sizes and their quantities
+        Map<String, Map<String, Integer>> customerSizes = new HashMap<>();
+        Map<String, Double> customerTotals = new HashMap<>();
+
+        // Process each order to populate the maps
+        for (int i = 0; i < customerContacts.length; i++) {
+            String customerId = customerContacts[i];
+            String size = tshirtSizes[i];
+            int quantity = orderQuantities[i];
+            double pricePerUnit = getPricePerSize(size);
+            double total = quantity * pricePerUnit;
+
+            customerSizes.putIfAbsent(customerId, new HashMap<>());
+            Map<String, Integer> sizes = customerSizes.get(customerId);
+            sizes.put(size, sizes.getOrDefault(size, 0) + quantity);
+
+            customerTotals.put(customerId, customerTotals.getOrDefault(customerId, 0.0) + total);
+        }
+
+        // Print the header
+        System.out.println("+---------------+----+----+----+----+----+----+---------+");
+        System.out.println("| Phone Number  | XS | S  | M  | L  | XL | XXL| Total   |");
+        System.out.println("+---------------+----+----+----+----+----+----+---------+");
+
+        // Print each customer's data
+        for (String customerId : customerSizes.keySet()) {
+            Map<String, Integer> sizes = customerSizes.get(customerId);
+            System.out.printf("| %-13s | %2d | %2d | %2d | %2d | %2d | %2d | %7.2f |\n",
+                customerId,
+                sizes.getOrDefault("XS", 0),
+                sizes.getOrDefault("S", 0),
+                sizes.getOrDefault("M", 0),
+                sizes.getOrDefault("L", 0),
+                sizes.getOrDefault("XL", 0),
+                sizes.getOrDefault("XXL", 0),
+                customerTotals.get(customerId));
+        }
+
+        System.out.println("+---------------+----+----+----+----+----+----+---------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine(); // To pause the display
     }
+
+    /*private double getPricePerSize(String size) {
+        switch (size) {
+            case "XS": return 600;
+            case "S": return 800;
+            case "M": return 900;
+            case "L": return 1000;
+            case "XL": return 1100;
+            case "XXL": return 1200;
+            default: return 0; // Default price if size is unrecognized
+        }
+    }*/
 
     private void viewItemReports() {
         System.out.println("Item Reports Functionality Coming Soon...");
@@ -422,36 +629,36 @@ public class TShirtStore {
     }
 
     public void deleteOrder() {
-    boolean continueDeletion;
-    char choice;
+        boolean continueDeletion;
+        char choice;
 
-    do {
-        System.out.print("\nEnter Order ID to delete: ");
-        String orderId = scanner.next();
+        do {
+            System.out.print("\nEnter Order ID to delete: ");
+            String orderId = scanner.next();
 
-        int index = searchbyorderid(orderId);
-        if (index == -1) {
-            System.out.println("\nOrder Not found.");
-        } else {
-            printorder(index);
+            int index = searchbyorderid(orderId);
+            if (index == -1) {
+                System.out.println("\nOrder Not found.");
+            } else {
+                printorder(index);
 
-            System.out.print("\nDo you really want to delete this order? (Y/N): ");
+                System.out.print("\nDo you really want to delete this order? (Y/N): ");
+                choice = scanner.next().charAt(0);
+
+                if (Character.toUpperCase(choice) == 'Y') {
+                    removeorder(index);
+                    System.out.println("\nOrder Deleted Successfully.");
+                }
+            }
+
+            System.out.print("\nDo you want to delete another Order? (Y/N): ");
             choice = scanner.next().charAt(0);
 
-            if (Character.toUpperCase(choice) == 'Y') {
-                removeorder(index);
-                System.out.println("\nOrder Deleted Successfully.");
+            if (Character.toUpperCase(choice) == 'N') {
+                break;
             }
-        }
-
-        System.out.print("\nDo you want to delete another Order? (Y/N): ");
-        choice = scanner.next().charAt(0);
-
-        if (Character.toUpperCase(choice) == 'N') {
-            break;
-        }
-    } while (true);
-}
+        } while (true);
+    }
 
     private int searchbyorderid(String orderId) {
         for (int i = 0; i < orderIds.length; i++) {

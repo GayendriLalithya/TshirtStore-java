@@ -25,7 +25,8 @@ public class TShirtStore {
     private static String[] tshirtSizes = new String[0];
     private static int[] orderQuantities = new int[0];
     private static double[] orderAmounts = new double[0];
-
+    private static String[] orderStatuses = new String[0];
+    //private List<Order> orders = new ArrayList<>();
 
     public TShirtStore() {
         this.scanner = new Scanner(System.in);
@@ -152,13 +153,14 @@ public class TShirtStore {
         } while (true); // Continue the loop if another order is to be placed
     }
 
-    private void extendArrays(String orderId, String name, String contact, String size, int quantity, double amount) {
+    /*private void extendArrays(String orderId, String name, String contact, String size, int quantity, double amount) {
         orderIds = Arrays.copyOf(orderIds, orderIds.length + 1);
         customerNames = Arrays.copyOf(customerNames, customerNames.length + 1);
         customerContacts = Arrays.copyOf(customerContacts, customerContacts.length + 1);
         tshirtSizes = Arrays.copyOf(tshirtSizes, tshirtSizes.length + 1);
         orderQuantities = Arrays.copyOf(orderQuantities, orderQuantities.length + 1);
         orderAmounts = Arrays.copyOf(orderAmounts, orderAmounts.length + 1);
+        orderStatuses = Arrays.copyOf(orderStatuses, orderStatuses.length + 1);
 
         int newIndex = orderIds.length - 1;
         orderIds[newIndex] = orderId;
@@ -167,7 +169,29 @@ public class TShirtStore {
         tshirtSizes[newIndex] = size;
         orderQuantities[newIndex] = quantity;
         orderAmounts[newIndex] = amount;
+        orderStatuses[newIndex] = "processing";
+    }*/
+
+   private void extendArrays(String orderId, String name, String contact, String size, int quantity, double amount) {
+        int newIndex = orderIds.length; // Declare newIndex at the beginning of the method
+        orderIds = Arrays.copyOf(orderIds, newIndex + 1);
+        customerNames = Arrays.copyOf(customerNames, newIndex + 1);
+        customerContacts = Arrays.copyOf(customerContacts, newIndex + 1);
+        tshirtSizes = Arrays.copyOf(tshirtSizes, newIndex + 1);
+        orderQuantities = Arrays.copyOf(orderQuantities, newIndex + 1);
+        orderAmounts = Arrays.copyOf(orderAmounts, newIndex + 1);
+        orderStatuses = Arrays.copyOf(orderStatuses, newIndex + 1); // Use newIndex after it's declared
+
+        // Assign values to the new index in each array
+        orderIds[newIndex] = orderId;
+        customerNames[newIndex] = name;
+        customerContacts[newIndex] = contact;
+        tshirtSizes[newIndex] = size;
+        orderQuantities[newIndex] = quantity;
+        orderAmounts[newIndex] = amount;
+        orderStatuses[newIndex] = "processing"; // Set initial status for the new order
     }
+
 
     private String generateOrderID() {
         lastOrderNumber++;
@@ -709,7 +733,7 @@ public class TShirtStore {
         System.out.println("[2] Orders By Amount");
         System.out.print("Enter option: ");
         String option = scanner.nextLine();
-    
+
         switch (option) {
             case "1":
                 displayAllOrders();
@@ -721,41 +745,155 @@ public class TShirtStore {
                 System.out.println("Invalid option, please try again.");
         }
     }
-    
+
     private void displayAllOrders() {
-        // Assuming all orders are stored in an array of order objects
-        Arrays.sort(orders, (a, b) -> b.getOrderID().compareTo(a.getOrderID()));  // Sort by Order ID in descending order
-    
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
-        System.out.println("| Order ID | Customer ID | Size | QTY | Amount | Status |");
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
-        for (Order order : orders) {
-            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f | %6s |\n", order.getOrderID(), order.getCustomerID(),
-                    order.getSize(), order.getQuantity(), order.getAmount(), order.getStatus());
+        // Sorting orders by ID in descending order using a simple selection sort for demonstration
+        for (int i = 0; i < orderIds.length - 1; i++) {
+            int maxIndex = i;
+            for (int j = i + 1; j < orderIds.length; j++) {
+                if (orderIds[j].compareTo(orderIds[maxIndex]) > 0) {
+                    maxIndex = j;
+                }
+            }
+            swapOrders(i, maxIndex);
         }
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
-        System.out.print("To access the Main Menu, please enter 0: ");
-        scanner.nextLine();
+        printOrders();
     }
-    
+
     private void displayOrdersByAmount() {
-        // Assuming all orders are stored in an array of order objects
-        Arrays.sort(orders, (a, b) -> Double.compare(b.getAmount(), a.getAmount()));  // Sort by Amount in descending order
-    
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
-        System.out.println("| Order ID | Customer ID | Size | QTY | Amount | Status |");
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
-        for (Order order : orders) {
-            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f | %6s |\n", order.getOrderID(), order.getCustomerID(),
-                    order.getSize(), order.getQuantity(), order.getAmount(), order.getStatus());
+        // Sorting orders by amount in descending order
+        for (int i = 0; i < orderAmounts.length - 1; i++) {
+            int maxIndex = i;
+            for (int j = i + 1; j < orderAmounts.length; j++) {
+                if (orderAmounts[j] > orderAmounts[maxIndex]) {
+                    maxIndex = j;
+                }
+            }
+            swapOrders(i, maxIndex);
         }
-        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        printOrders();
+    }
+
+    private void swapOrders(int i, int j) {
+        // Swapping all related order information
+        String tempId = orderIds[i];
+        orderIds[i] = orderIds[j];
+        orderIds[j] = tempId;
+
+        String tempName = customerNames[i];
+        customerNames[i] = customerNames[j];
+        customerNames[j] = tempName;
+
+        String tempContact = customerContacts[i];
+        customerContacts[i] = customerContacts[j];
+        customerContacts[j] = tempContact;
+
+        String tempSize = tshirtSizes[i];
+        tshirtSizes[i] = tshirtSizes[j];
+        tshirtSizes[j] = tempSize;
+
+        int tempQty = orderQuantities[i];
+        orderQuantities[i] = orderQuantities[j];
+        orderQuantities[j] = tempQty;
+
+        double tempAmt = orderAmounts[i];
+        orderAmounts[i] = orderAmounts[j];
+        orderAmounts[j] = tempAmt;
+    }
+
+    private void printOrders() {
+        System.out.println("+---------+--------------+------+-----+--------+");
+        System.out.println("| Order ID | Customer ID | Size | QTY | Amount |");
+        System.out.println("+---------+--------------+------+-----+--------+");
+        for (int i = 0; i < orderIds.length; i++) {
+            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f |\n",
+                    orderIds[i], customerContacts[i],
+                    tshirtSizes[i], orderQuantities[i], 
+                    orderAmounts[i]);
+        }
+        System.out.println("+---------+--------------+------+-----+--------+");
         System.out.print("To access the Main Menu, please enter 0: ");
         scanner.nextLine();
     }
 
+    /*private void displayAllOrders() {
+        orders.sort((a, b) -> b.getOrderID().compareTo(a.getOrderID())); // Sort by Order ID in descending order
+        printOrders("All Orders Sorted by ID");
+    }
+
+    private void displayOrdersByAmount() {
+        orders.sort((a, b) -> Double.compare(b.getAmount(), a.getAmount())); // Sort by Amount in descending order
+        printOrders("All Orders Sorted by Amount");
+    }
+
+    private void printOrders(String title) {
+        System.out.println(title);
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.println("| Order ID | Customer ID | Size | QTY | Amount | Status |");
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        for (Order order : orders) {
+            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f | %6s |\n",
+                    order.getOrderID(), order.getCustomerID(),
+                    order.getSize(), order.getQuantity(), 
+                    order.getAmount(), order.getStatus());
+        }
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine();
+    }*/
+
     private void setOrderStatus() {
-        // Implement status update logic
+        System.out.print("Enter Order ID: ");
+        String orderId = scanner.nextLine();
+        int index = searchbyorderid(orderId);
+
+        if (index == -1) {
+            System.out.println("Order not found.");
+        } else {
+            System.out.println("Phone Number : " + customerContacts[index]);
+            System.out.println("Size         : " + tshirtSizes[index]);
+            System.out.println("QTY          : " + orderQuantities[index]);
+            System.out.println("Amount       : " + orderAmounts[index]);
+            System.out.println("Status       : " + orderStatuses[index]);
+
+            if (!orderStatuses[index].equals("delivered")) {
+                System.out.print("Do you want to change this order status? (y/n): ");
+                String confirm = scanner.nextLine();
+                if (confirm.equalsIgnoreCase("y")) {
+                    updateOrderStatus(index);
+                }
+            } else {
+                System.out.println("Can't change order status, Order already delivered!");
+            }
+        }
+
+        System.out.print("Do you want to change another order status? (y/n): ");
+        String anotherChange = scanner.nextLine();
+        if (anotherChange.equalsIgnoreCase("y")) {
+            setOrderStatus(); // Recursive call to handle another status change
+        }
+    }
+
+    private void updateOrderStatus(int index) {
+        System.out.println("Select the new status:");
+        System.out.println("[1] Order Delivering");
+        System.out.println("[2] Order Delivered");
+        System.out.print("Enter option: ");
+        String option = scanner.nextLine();
+
+        switch (option) {
+            case "1":
+                orderStatuses[index] = "delivering";
+                break;
+            case "2":
+                orderStatuses[index] = "delivered";
+                break;
+            default:
+                System.out.println("Invalid option. No changes made.");
+                break;
+        }
+
+        System.out.println("Updated Order Status: " + orderStatuses[index]);
     }
 
     public void deleteOrder() {

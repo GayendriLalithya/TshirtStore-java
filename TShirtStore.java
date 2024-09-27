@@ -250,7 +250,6 @@ public class TShirtStore {
         return price * quantity;
     }
 
-
     // Placeholder methods for other features
     private void searchCustomer() {
         boolean continueSearch = false;

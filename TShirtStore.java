@@ -632,7 +632,7 @@ public class TShirtStore {
         }
     }
 
-    private void sortCategoriesByQuantity() {
+    /*private void sortCategoriesByQuantity() {
         // Collect and sort data by quantity
         Map<String, Integer> categoryData = new HashMap<>();
         for (int i = 0; i < tshirtSizes.length; i++) {
@@ -655,11 +655,103 @@ public class TShirtStore {
         categoryData.entrySet().stream()
             .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
             .forEach(e -> System.out.println("Category: " + e.getKey() + ", Total: " + String.format("%.2f", e.getValue())));
+    }*/
+
+    private void sortCategoriesByQuantity() {
+        // Collect data
+        Map<String, Integer> categoryData = new HashMap<>();
+        Map<String, Double> categoryAmounts = new HashMap<>();
+        for (int i = 0; i < tshirtSizes.length; i++) {
+            categoryData.merge(tshirtSizes[i], orderQuantities[i], Integer::sum);
+            categoryAmounts.merge(tshirtSizes[i], orderQuantities[i] * orderAmounts[i], Double::sum);
+        }
+
+        // Print header
+        System.out.println("+------+-----+------------+");
+        System.out.println("| Size | QTY | Total Amount|");
+        System.out.println("+------+-----+------------+");
+
+        // Print sorted data by quantity
+        categoryData.entrySet().stream()
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+            .forEach(e -> System.out.printf("| %-4s | %3d | %10.2f |\n", e.getKey(), e.getValue(), categoryAmounts.get(e.getKey())));
+
+        System.out.println("+------+-----+------------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
+    }
+
+    private void sortCategoriesByAmount() {
+        // Collect data
+        Map<String, Double> categoryAmounts = new HashMap<>();
+        Map<String, Integer> categoryData = new HashMap<>();
+        for (int i = 0; i < tshirtSizes.length; i++) {
+            categoryData.merge(tshirtSizes[i], orderQuantities[i], Integer::sum);
+            categoryAmounts.merge(tshirtSizes[i], orderQuantities[i] * orderAmounts[i], Double::sum);
+        }
+
+        // Print header
+        System.out.println("+------+-----+------------+");
+        System.out.println("| Size | QTY | Total Amount|");
+        System.out.println("+------+-----+------------+");
+
+        // Print sorted data by total amount
+        categoryAmounts.entrySet().stream()
+            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+            .forEach(e -> System.out.printf("| %-4s | %3d | %10.2f |\n", e.getKey(), categoryData.get(e.getKey()), e.getValue()));
+
+        System.out.println("+------+-----+------------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
     }
 
     private void viewOrdersReports() {
-        System.out.println("Orders Reports Functionality Coming Soon...");
-        // Here you would add the logic for viewing order-specific reports.
+        System.out.println("Select report type:");
+        System.out.println("[1] All Orders");
+        System.out.println("[2] Orders By Amount");
+        System.out.print("Enter option: ");
+        String option = scanner.nextLine();
+    
+        switch (option) {
+            case "1":
+                displayAllOrders();
+                break;
+            case "2":
+                displayOrdersByAmount();
+                break;
+            default:
+                System.out.println("Invalid option, please try again.");
+        }
+    }
+    
+    private void displayAllOrders() {
+        // Assuming all orders are stored in an array of order objects
+        Arrays.sort(orders, (a, b) -> b.getOrderID().compareTo(a.getOrderID()));  // Sort by Order ID in descending order
+    
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.println("| Order ID | Customer ID | Size | QTY | Amount | Status |");
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        for (Order order : orders) {
+            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f | %6s |\n", order.getOrderID(), order.getCustomerID(),
+                    order.getSize(), order.getQuantity(), order.getAmount(), order.getStatus());
+        }
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine();
+    }
+    
+    private void displayOrdersByAmount() {
+        // Assuming all orders are stored in an array of order objects
+        Arrays.sort(orders, (a, b) -> Double.compare(b.getAmount(), a.getAmount()));  // Sort by Amount in descending order
+    
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.println("| Order ID | Customer ID | Size | QTY | Amount | Status |");
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        for (Order order : orders) {
+            System.out.printf("| %8s | %12s | %4s | %3d | %6.2f | %6s |\n", order.getOrderID(), order.getCustomerID(),
+                    order.getSize(), order.getQuantity(), order.getAmount(), order.getStatus());
+        }
+        System.out.println("+---------+--------------+------+-----+--------+--------+");
+        System.out.print("To access the Main Menu, please enter 0: ");
+        scanner.nextLine();
     }
 
     private void setOrderStatus() {
